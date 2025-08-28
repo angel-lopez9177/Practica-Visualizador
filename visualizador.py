@@ -6,9 +6,9 @@ import time
 # Parámetros generales
 ANCHO = 800
 ALTO = 300
-N_BARRAS = 40
+N_BARRAS = 25
 VAL_MIN, VAL_MAX = 5, 100
-RETARDO_MS = 50  # velocidad de animación
+RETARDO_MS = 20  # velocidad de animación
 
 # Algoritmo: Selection Sort
 def selection_sort_steps(data, draw_callback):
@@ -50,9 +50,9 @@ def dibujar_barras(canvas, datos, activos=None):
         h = v * esc
         y0 = ALTO - margen - h
         y1 = ALTO - margen
-        color = "#4e79a7"
+        color = "#4f34d9"
         if activos and i in activos:
-            color = "#f28e2b"
+            color = "#e843cd"
         canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline="")
     canvas.create_text(6, 6, anchor="nw", text=f"n={len(datos)}", fill="#666")
 
@@ -84,7 +84,7 @@ def ordenar():
     elif algoritmo_seleccionado == 'Bubble sort':
         gen = bubble_sort_steps(datos, lambda activos=None: dibujar_barras(canvas, datos, activos))
         def paso():
-            try:
+            try: 
                 next(gen)
                 root.after(RETARDO_MS, paso)
             except StopIteration:
