@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import random
 import time
 
@@ -20,6 +21,17 @@ def selection_sort_steps(data, draw_callback):
                 min_idx = j
         data[i], data[min_idx] = data[min_idx], data[i]
         draw_callback(activos=[i, min_idx]); yield
+    draw_callback(activos=[])
+
+# Algoritmo: Bubble sort
+def bubble_sort_steps(data, draw_callback):
+    n = len(data)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            draw_callback(activos=[j, j+1]); yield
+            if data[j] > data[j + 1]:
+                data[j], data[j + 1] = data[j + 1], data[j]
+                draw_callback(activos=[j, j+1]); yield
     draw_callback(activos=[])
 
 # Función de dibujo
@@ -57,21 +69,36 @@ def generar():
     datos = [random.randint(VAL_MIN, VAL_MAX) for _ in range(N_BARRAS)]
     dibujar_barras(canvas, datos)
 
-def ordenar_selection():
+def ordenar():
     if not datos: return
-    gen = selection_sort_steps(datos, lambda activos=None: dibujar_barras(canvas, datos, activos))
-    def paso():
-        try:
-            next(gen)
-            root.after(RETARDO_MS, paso)
-        except StopIteration:
-            pass
-    paso()
+    algoritmo_seleccionado = combobox.get()
+    if algoritmo_seleccionado == 'Selection sort':
+        gen = selection_sort_steps(datos, lambda activos=None: dibujar_barras(canvas, datos, activos))
+        def paso():
+            try:
+                next(gen)
+                root.after(RETARDO_MS, paso)
+            except StopIteration:
+                pass
+        paso()
+    elif algoritmo_seleccionado == 'Bubble sort':
+        gen = bubble_sort_steps(datos, lambda activos=None: dibujar_barras(canvas, datos, activos))
+        def paso():
+            try:
+                next(gen)
+                root.after(RETARDO_MS, paso)
+            except StopIteration:
+                pass
+        paso()
 
 panel = tk.Frame(root)
 panel.pack(pady=6)
+opciones_algoritmo = ['Selection sort', 'Bubble sort']
+combobox = ttk.Combobox(root, values=opciones_algoritmo, state="readonly")
+combobox.pack(ipadx=5)
+combobox.set('Selection sort')
 tk.Button(panel, text="Generar", command=generar).pack(side="left", padx=5)
-tk.Button(panel, text="Ordenar (Selection)", command=ordenar_selection).pack(side="left", padx=5)
+tk.Button(panel, text="Ordenar", command=ordenar).pack(side="left", padx=5)
 
 generar()
 root.mainloop()
