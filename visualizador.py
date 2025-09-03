@@ -4,8 +4,8 @@ import random
 import time
 
 # Parámetros generales
-ANCHO = 800
-ALTO = 300
+ANCHO = 900
+ALTO = 500
 N_BARRAS = 25
 VAL_MIN, VAL_MAX = 5, 100
 RETARDO_MS = 100 
@@ -126,6 +126,7 @@ def merge_steps(data, left, mid, right, draw_callback):
         k += 1
 
 # Función de dibujo 
+
 def dibujar_barras(canvas, datos, activos=None, pivote=None, rango=None, fusionando=None):
     canvas.delete("all")
     if not datos: return
@@ -166,12 +167,15 @@ def dibujar_barras(canvas, datos, activos=None, pivote=None, rango=None, fusiona
     
     canvas.create_text(6, 6, anchor="nw", text=f"n={len(datos)}", fill="#666")
 
+# Función de generación de datos
 
 def generar():
     global datos
     random.seed(time.time())
     datos = [random.randint(VAL_MIN, VAL_MAX) for _ in range(N_BARRAS)]
     dibujar_barras(canvas, datos)
+
+# Función para ordenar los datos dependiendo del algoritmo seleccionado
 
 def ordenar():
     if not datos: return
@@ -200,28 +204,49 @@ def ordenar():
     paso()
 
 # Función para establecer el tamaño de n
+
 def set_n_size():
     global N_BARRAS
     try:
         number = int(entry_n.get())
-        if number < 5:
-            status_label.config(text="Mínimo 5 elementos", fg="red")
+        if number < 0:
+            status_label.config(text="Ingresa valores positivos enteros", fg="red")
             return
-        if number > 100:
+        if number > 1000:
             status_label.config(text="Máximo 100 elementos", fg="red")
             return
             
         N_BARRAS = number
         status_label.config(text=f"n={number} establecido", fg="green")
-        generar()  # Regenerar con el nuevo tamaño
+        generar()  
     except ValueError:
         status_label.config(text="Ingrese un número válido", fg="red")
+
+#Función para mezclar los datos del array
+
+def shuffle_arr():
+    global datos  
+    random.shuffle(datos)  
+    dibujar_barras(canvas, datos)  
+
+# Función para cambiar el tiempo de retardo en ms
+
+def change_speed(speed):
+    global RETARDO_MS
+    RETARDO_MS = int(float(speed))
+
+# Función para limpiar 
+
+def clean():
+    if datos: 
+        dibujar_barras(canvas, datos, activos=[], pivote=None, rango=None, fusionando=None)
+    
 
 # Aplicación principal
 datos = []
 root = tk.Tk()
 root.title("Visualizador de Algoritmos de Ordenamiento")
-root.geometry("1000x400")  # Ventana más ancha
+root.geometry("1200x550")  # Ventana más ancha
 
 # Frame principal que divide izquierda y derecha
 main_frame = tk.Frame(root)
@@ -261,24 +286,25 @@ status_label = tk.Label(size_frame, text=f"n={N_BARRAS}", fg="green",
                        bg="#f0f0f0", font=("Arial", 9))
 status_label.pack(anchor="w", pady=5)
 
+
 # Separador
 separator = ttk.Separator(left_frame, orient="horizontal")
 separator.pack(fill="x", pady=10)
 
 # Controles de algoritmo
-algo_frame = tk.Frame(left_frame, bg="#f0f0f0")
-algo_frame.pack(pady=10, padx=10, fill="x")
+algoritmo_frame = tk.Frame(left_frame, bg="#f0f0f0")
+algoritmo_frame.pack(pady=10, padx=10, fill="x")
 
-tk.Label(algo_frame, text="Algoritmo:", bg="#f0f0f0", font=("Arial", 10)).pack(anchor="w")
+tk.Label(algoritmo_frame, text="Algoritmo:", bg="#f0f0f0", font=("Arial", 10)).pack(anchor="w")
 
 opciones_algoritmo = ['Selection sort', 'Bubble sort', 'Quick sort', 'Merge sort']
-combobox = ttk.Combobox(algo_frame, values=opciones_algoritmo, state="readonly", 
+combobox = ttk.Combobox(algoritmo_frame, values=opciones_algoritmo, state="readonly", 
                        width=15, font=("Arial", 10))
 combobox.pack(pady=5, fill="x")
 combobox.set('Selection sort')
 
 # Botones de acción
-button_frame = tk.Frame(algo_frame, bg="#f0f0f0")
+button_frame = tk.Frame(algoritmo_frame, bg="#f0f0f0")
 button_frame.pack(fill="x", pady=10)
 
 generate_button = tk.Button(button_frame, text="Generar Array", command=generar,
@@ -289,7 +315,29 @@ sort_button = tk.Button(button_frame, text="Ordenar", command=ordenar,
                        bg="#FF5722", fg="white", font=("Arial", 10), width=12)
 sort_button.pack(pady=5)
 
-# Canvas para visualización (en el frame derecho)
+shuffle_button = tk.Button(button_frame, text = "Mezclar", command=shuffle_arr,
+                           bg="#87730D", fg="white",font=("Arial", 10), width=12) 
+shuffle_button.pack(pady=5)
+
+clear_button = tk.Button(button_frame, text="Limpiar", command=clean,
+                         bg="#9E9E9E", fg="white", font=("Arial", 10), width=12)
+clear_button.pack(pady=5)
+
+# Cambio de velocidad
+
+scale_frame = tk.Frame(algoritmo_frame, bg="#f0f0f0")
+scale_frame.pack(fill="x", pady=10)
+
+scale_label = tk.Label(scale_frame, text="Velocidad: ", bg="#f0f0f0", font=("Arial", 10))
+scale_label.pack(anchor="w")
+
+scale_value = tk.Scale(scale_frame, from_=0, to=100, orient=tk.HORIZONTAL, command=change_speed)
+scale_value.pack(pady=5)
+scale_value.set(RETARDO_MS)
+scale_value.pack(pady=10, fill="x")
+
+
+# Canvas para visualización 
 canvas = tk.Canvas(right_frame, width=ANCHO, height=ALTO, bg="white", relief="sunken", bd=2)
 canvas.pack(fill="both", expand=True, padx=10, pady=10)
 
