@@ -331,7 +331,7 @@ scale_frame.pack(fill="x", pady=10)
 scale_label = tk.Label(scale_frame, text="Velocidad: ", bg="#f0f0f0", font=("Arial", 10))
 scale_label.pack(anchor="w")
 
-scale_value = tk.Scale(scale_frame, from_=0, to=100, orient=tk.HORIZONTAL, command=change_speed)
+scale_value = tk.Scale(scale_frame, from_=0, to=200, orient=tk.HORIZONTAL, command=change_speed)
 scale_value.pack(pady=5)
 scale_value.set(RETARDO_MS)
 scale_value.pack(pady=10, fill="x")
