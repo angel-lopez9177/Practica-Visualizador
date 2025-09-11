@@ -4,11 +4,14 @@ import random
 import time
 
 # Parámetros generales
-ANCHO = 900
-ALTO = 500
+ANCHO = 1200
+ALTO = 800
 N_BARRAS = 25
 VAL_MIN, VAL_MAX = 5, 100
 RETARDO_MS = 100 
+
+# Lista que almacena los tiempos de ejecución
+tiempos_algoritmos = {}
 
 # Algoritmo: Selection Sort
 def selection_sort_steps(data, draw_callback):
@@ -144,24 +147,24 @@ def dibujar_barras(canvas, datos, activos=None, pivote=None, rango=None, fusiona
         y0 = ALTO - margen - h
         y1 = ALTO - margen
         
-        color = "#4f34d9"  
+        color = "#4F34D9"  
         
         # Quick Sort - Pivote
         if pivote is not None and i == pivote:
-            color = "#ff9900"  # Naranja
+            color = "#60FAF8"  
         
         # Quick Sort - Rango actual
         if rango and rango[0] <= i <= rango[1]:
-            if color == "#4f34d9":
-                color = "#7d6ae0"  # Azul claro
+            if color == "#4F34D9":
+                color = "#7d6ae0"  
         
         # Merge Sort - Rango de fusión
         if fusionando and fusionando[0] <= i <= fusionando[1]:
-            color = "#33cc33"  # Verde
+            color = "#EBA4D2"  # Verde
         
         # Elementos activos (comparando)
         if activos and i in activos:
-            color = "#e843cd"  # Rosa
+            color = "#E843CD"  
         
         canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline="")
     
@@ -194,13 +197,19 @@ def ordenar():
     else:
         return
 
+
+    inicio = time.perf_counter()  # Inicia 
+
     def paso():
         try: 
             next(gen)
             root.after(RETARDO_MS, paso)
         except StopIteration:
-            pass
-    
+            fin = time.perf_counter()
+            duracion_ms = (fin - inicio) * 1000
+            tiempos_algoritmos[algoritmo_seleccionado] = duracion_ms
+            mostrar_tiempos()
+
     paso()
 
 # Función para establecer el tamaño de n
@@ -217,7 +226,7 @@ def set_n_size():
             return
             
         N_BARRAS = number
-        status_label.config(text=f"n={number} establecido", fg="green")
+        status_label.config(text=f"n={number} establecido", fg="#112E49")
         generar()  
     except ValueError:
         status_label.config(text="Ingrese un número válido", fg="red")
@@ -240,13 +249,27 @@ def change_speed(speed):
 def clean():
     if datos: 
         dibujar_barras(canvas, datos, activos=[], pivote=None, rango=None, fusionando=None)
+
+# Funbción para medir el tiempo de ejecución
+
+def mostrar_tiempos():
+    """Actualizar la lista de tiempos en el frame de tiempos"""
+    for widget in times_frame.winfo_children():
+        widget.destroy()
+    if not tiempos_algoritmos:
+        tk.Label(times_frame, text="Sin datos", bg="#f0f0f0").pack(anchor="w")
+        return
+    for alg, t in tiempos_algoritmos.items():
+        tk.Label(times_frame, text=f"{alg}: {t:.2f} ms", bg="#f0f0f0",
+                 font=("Arial", 9)).pack(anchor="w")
+
     
 
 # Aplicación principal
 datos = []
 root = tk.Tk()
 root.title("Visualizador de Algoritmos de Ordenamiento")
-root.geometry("1200x550")  # Ventana más ancha
+root.geometry("1400x800")  
 
 # Frame principal que divide izquierda y derecha
 main_frame = tk.Frame(root)
@@ -255,7 +278,7 @@ main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 # Frame izquierdo para controles
 left_frame = tk.Frame(main_frame, width=250, bg="#f0f0f0")
 left_frame.pack(side="left", fill="y", padx=(0, 10))
-left_frame.pack_propagate(False)  # Mantener el ancho fijo
+left_frame.pack_propagate(False)  
 
 # Frame derecho para la gráfica
 right_frame = tk.Frame(main_frame)
@@ -279,13 +302,12 @@ entry_n.insert(0, str(N_BARRAS))
 entry_n.pack(side="left", padx=(0, 5))
 
 set_button = tk.Button(entry_frame, text="Establecer", command=set_n_size, 
-                      bg="#4CAF50", fg="white", font=("Arial", 9))
+                      bg="#C252E1", fg="white", font=("Arial", 9))
 set_button.pack(side="left")
 
-status_label = tk.Label(size_frame, text=f"n={N_BARRAS}", fg="green", 
+status_label = tk.Label(size_frame, text=f"n={N_BARRAS}", fg="#112E49", 
                        bg="#f0f0f0", font=("Arial", 9))
 status_label.pack(anchor="w", pady=5)
-
 
 # Separador
 separator = ttk.Separator(left_frame, orient="horizontal")
@@ -308,20 +330,34 @@ button_frame = tk.Frame(algoritmo_frame, bg="#f0f0f0")
 button_frame.pack(fill="x", pady=10)
 
 generate_button = tk.Button(button_frame, text="Generar Array", command=generar,
-                           bg="#2196F3", fg="white", font=("Arial", 10), width=12)
+                           bg="#0F1546", fg="white", font=("Arial", 10), width=12)
 generate_button.pack(pady=5)
 
 sort_button = tk.Button(button_frame, text="Ordenar", command=ordenar,
-                       bg="#FF5722", fg="white", font=("Arial", 10), width=12)
+                       bg="#2843AD", fg="white", font=("Arial", 10), width=12)
 sort_button.pack(pady=5)
 
 shuffle_button = tk.Button(button_frame, text = "Mezclar", command=shuffle_arr,
-                           bg="#87730D", fg="white",font=("Arial", 10), width=12) 
+                           bg="#818DE0", fg="white",font=("Arial", 10), width=12) 
 shuffle_button.pack(pady=5)
 
 clear_button = tk.Button(button_frame, text="Limpiar", command=clean,
-                         bg="#9E9E9E", fg="white", font=("Arial", 10), width=12)
+                         bg="#AB95B8", fg="white", font=("Arial", 10), width=12)
 clear_button.pack(pady=5)
+
+# Frame de tiempos de ejecución 
+
+separator2 = ttk.Separator(left_frame, orient="horizontal")
+separator2.pack(fill="x", pady=10)
+
+times_label = tk.Label(left_frame, text="Tiempos de ejecución (ms):", 
+                      font=("Arial", 10, "bold"), bg="#f0f0f0")
+times_label.pack(anchor="w", padx=10)
+
+times_frame = tk.Frame(left_frame, bg="#f0f0f0")
+times_frame.pack(padx=10, pady=5, fill="x")
+
+mostrar_tiempos()
 
 # Cambio de velocidad
 
